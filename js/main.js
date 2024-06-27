@@ -44,40 +44,61 @@ messageWithTimer( "hello", 3000 );
 let btnStart = document.querySelector( ".watch__settings__start" );
 let btnReset = document.querySelector( ".watch__settings__reset" );
 let timerSpanS = document.querySelector( ".watch__time__s" );
-let initialTime = 33;
+let timerSpanMS = document.querySelector( ".watch__time__ms" );
+let initialTime = 12;
+let interval = 0;
 
-function checkTimeLeft ( el, num ) {
-    if( num <= 9 ) {
-        el.innerHTML = "0" + num
-    } else {
-        el.innerHTML = num;
-    }
+timerSpanS.innerHTML = initialTime > 9 ? initialTime : "0" + initialTime ;
+
+function setInitialValueForTimer( decrement, ms ) {
+    timerSpanMS.innerHTML = ms;
+    timerSpanS.innerHTML = initialTime > 9 ? initialTime - decrement : "0" + ( initialTime - decrement  );
+    document.documentElement.style.setProperty('--progress', 100);
 }
 
-
 btnStart.addEventListener( "click", function() {
-    
-    checkTimeLeft( timerSpanS, initialTime);
-
-
-    let intervalS = setInterval( () => {
-        let sLeft = +timerSpanS.innerHTML;
-        sLeft--;
-        checkTimeLeft( timerSpanS, sLeft );
-        let stroke = getComputedStyle(document.documentElement).getPropertyValue( "--progress" );
-        document.documentElement.style.setProperty('--progress', stroke - 100/initialTime)
-
-        if( +timerSpanS.innerHTML === 0 ) {
-            clearInterval( intervalS );
-        }
-        
-    } ,1000 )
-    
+    clearInterval( interval );
+    setInitialValueForTimer( 1, 99 );
+    interval = setInterval( startCountDown, 10 );
 } );
 
 btnReset.addEventListener( "click", function() {
-    location.reload();
-}  );
+    clearInterval( interval );
+    setInitialValueForTimer( 0, "00" );
+} );
 
+
+function startCountDown () {
+    let msValue = +timerSpanMS.innerHTML;
+    let sValue = +timerSpanS.innerHTML;
+    msValue--;
+    
+    if( msValue >= 10 ) {
+        timerSpanMS.innerHTML = msValue; 
+    } else {
+        timerSpanMS.innerHTML = "0" + msValue;
+        
+    }
+    if( msValue === 0 ) {
+        if( sValue === 0 ) {
+            clearInterval(interval);
+            document.documentElement.style.setProperty('--progress', 0);
+            return;
+        }
+        timerSpanMS.innerHTML = 99;
+        sValue--;
+        let stroke = getComputedStyle(document.documentElement).getPropertyValue( "--progress" );
+        document.documentElement.style.setProperty('--progress', stroke - 100/initialTime);
+        
+        if( sValue >= 10 ) {
+            timerSpanS.innerHTML = sValue;
+        } else {
+            timerSpanS.innerHTML = "0" + sValue;
+
+        } 
+    }
+     
+
+}
 
 
